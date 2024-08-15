@@ -1,79 +1,64 @@
 var functionMap = {
-	"addButton" : (a, b) => a + b,
-	"subtractButton" : (a, b) => a - b,
-	"multiplyButton" : (a, b) => a * b,
-	"divideButton" : (a, b) => a / b
-};
-
-function evaluate(stack) {
-    return functionMap[stack[1]](stack[0], stack[2]);
+    "addButton": (a, b) => a + b,
+    "subtractButton": (a, b) => a - b,
+    "multiplyButton": (a, b) => a * b,
+    "divideButton": (a, b) => a / b
 };
 
 var stack = [];
 var display = '';
 var current;
 
+function evaluate(stack) {
+    return functionMap[stack[1]](stack[0], stack[2]);
+}
 
 $(function() {
-   $(".digit").click(function() {
-       if (stack.length == 1 || stack.length == 3) { 
-           display = '';
-           stack = [];
-       } 
+    $(".digit").click(function() {
+        if (stack.length === 3) {
+            display = '';
+            stack = [];
+        }
 
-       display += $(this).val();
-       $("#display").val(Number(display));
-       current = Number(display);
+        display += $(this).val();
+        $("#display").val(display);
+        current = Number(display);
     });
 
-    $("#clearButton").click(function() { 
+    $("#clearButton").click(function() {
         stack = [];
+        display = '';
         current = NaN;
         $("#display").val(display);
     });
 
     $(".operator").click(function() {
-        if (stack.length == 3) { 
-            stack.push(Number(display));
+        if (stack.length === 1 || stack.length === 3) {
             stack.push(this.id);
-        } else if (stack.length == 2) { 
-            if (isNaN(current)) {  
-                stack[1] = this.id; 
-            } else { 
-                stack.push(Number(display));
+        } else if (stack.length === 2) {
+            if (isNaN(current)) {
+                stack[1] = this.id;
+            } else {
+                stack.push(current);
                 display = evaluate(stack);
                 $("#display").val(display);
-                stack = [display, this.id];
+                stack = [Number(display), this.id];
             }
-        } else if (stack.length == 1) { 
+        } else {
+            stack.push(current);
             stack.push(this.id);
-        } else { 
-            stack.push(Number(display));
-            stack.push(this.id);
-            display = ''; 
+            display = '';
         }
         current = NaN;
+        display = '';
+    });
 
-        display = ''; 		
- 	});
-
- 	$("#equalsButton").click(function() {
- 		// console.log(stack); 		
- 		if (stack.length == 0) { 
- 			if (current) { 
- 				stack = [current];
- 			}
- 		} else if (stack.length == 2) {  
- 			if (!isNaN(current)) { 
- 				stack.push(Number(display));
- 				console.log(stack);
- 				display = evaluate(stack);
- 				$("#display").val(display);				
- 			} 		
- 		} else if (stack.length == 3) { 
- 			stack[0] = display;
- 			display = evaluate(stack);
- 			$("#display").val(display);
- 		} 		
- 	});
+    $("#equalsButton").click(function() {
+        if (stack.length === 2) {
+            stack.push(current);
+            display = evaluate(stack);
+            $("#display").val(display);
+            stack = [Number(display)];
+        }
+    });
 });
